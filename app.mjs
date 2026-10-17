@@ -1,18 +1,83 @@
-import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
+import { start } from './lib/server.mjs';
+import { run, validate } from './core.mjs';
+export * from './core.mjs';
+export const spec = { ...{
+  "slug": "routecard",
+  "repo": "routecard",
+  "owner": "windingbuff",
+  "title": "Routecard",
+  "purpose": "Plan a delivery sequence that fits service windows and capacity",
+  "workflow": "Kite logistics agents can buy a verified planning report using their own travel-time matrix; the output is not live navigation.",
+  "colors": [
+    "#f1f5e9",
+    "#173d39",
+    "#176c59"
+  ],
+  "required": [
+    "stops",
+    "matrix"
+  ],
+  "sample": {
+    "stops": [
+      {
+        "id": "1",
+        "service": 10,
+        "demand": 1,
+        "window": [
+          500,
+          620
+        ]
+      },
+      {
+        "id": "2",
+        "service": 10,
+        "demand": 1,
+        "window": [
+          540,
+          700
+        ]
+      }
+    ],
+    "matrix": {
+      "depot>1": 10,
+      "depot>2": 15,
+      "1>depot": 12,
+      "2>depot": 18,
+      "1>2": 20,
+      "2>1": 25
+    },
+    "start": 480,
+    "capacity": 2,
+    "lockedPrefix": []
+  },
+  "changed": "Feasible insertion uses cumulative capacity and full route replay. Matrix gaps are rejected, locked prefixes stay fixed and unserved stops are explicit.",
+  "limits": "No map routing, live traffic, actual GPS records or fleet control. The matrix is directed. No global optimum is claimed.",
+  "version": "0.2.0",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "stops",
+      "matrix"
+    ],
+    "properties": {
+      "stops": {
+        "type": "array"
+      },
+      "matrix": {
+        "type": "object"
+      },
+      "start": {
+        "type": "integer"
+      },
+      "capacity": {
+        "type": "integer"
+      },
+      "lockedPrefix": {
+        "type": "array"
+      }
+    }
+  }
+}, run, validate };
+if (process.argv[1] === fileURLToPath(import.meta.url)) start(spec);
 
-export function replayRoute(order, stops, matrix, startTime = 480, capacity = Infinity) {
-  let time = startTime, load = 0, previous = 'depot'; const completed = [], unserved = [];
-  for (const id of order) { const stop = stops.find(item => item.id === id); if (!stop) continue; const leg = matrix[`${previous}>${id}`]; if (leg === undefined) throw new Error(`缺少 ${previous} 到 ${id} 的距离`); const arrival = time + leg; const start = Math.max(arrival, stop.window[0]); const finish = start + stop.service; if (finish > stop.window[1] || load + stop.demand > capacity) { unserved.push({ id, reason: finish > stop.window[1] ? '超过时间窗' : '超过容量' }); continue; } completed.push({ id, arrival, start, finish, wait: start - arrival }); load += stop.demand; time = finish; previous = id; }
-  return { completed, unserved, endTime: time, load };
-}
-
-export function planRoute(stops, matrix, startTime = 480, capacity = Infinity, lockedPrefix = []) {
-  const remaining = new Set(stops.map(stop => stop.id)); const order = [...lockedPrefix]; for (const id of lockedPrefix) remaining.delete(id); let previous = lockedPrefix.at(-1) ?? 'depot'; let time = startTime;
-  for (const locked of lockedPrefix) { const stop = stops.find(item => item.id === locked); const leg = matrix[`${previous === locked ? 'depot' : previous}>${locked}`] ?? 0; time = Math.max(time + leg, stop.window[0]) + stop.service; previous = locked; }
-  while (remaining.size) { const candidates = [...remaining].map(id => stops.find(stop => stop.id === id)).map(stop => { const arrival = time + (matrix[`${previous}>${stop.id}`] ?? Infinity); const start = Math.max(arrival, stop.window[0]); return { stop, finish: start + stop.service, arrival }; }).filter(item => item.finish <= item.stop.window[1] && item.stop.demand + 0 <= capacity).sort((a, b) => a.finish - b.finish || a.stop.id.localeCompare(b.stop.id)); if (!candidates.length) break; const chosen = candidates[0]; order.push(chosen.stop.id); remaining.delete(chosen.stop.id); time = chosen.finish; previous = chosen.stop.id; }
-  return { order, replay: replayRoute(order, stops, matrix, startTime, capacity), lockedPrefix };
-}
-
-function html() { return `<!doctype html><meta charset="utf-8"><title>路签 · 多站配送顺序</title><style>body{font:16px system-ui;margin:0;background:#f1f5e9;color:#173d39}main{max-width:1000px;margin:auto;padding:32px}textarea{width:100%;min-height:180px;font:14px ui-monospace;padding:10px;box-sizing:border-box}section{background:#fcfcf4;border:1px solid #cad8c4;padding:18px;margin:16px 0}button{background:#176c59;color:#fff;border:0;padding:10px 14px;border-radius:3px}pre{white-space:pre-wrap;background:#d7e7ce;padding:12px}</style><main><p>路签 / 多站配送顺序</p><h1>排一条能执行的路线，赶不上的站留下来。</h1><section><label>站点 JSON<textarea id="stops">[{"id":"1","service":10,"demand":1,"window":[500,620]},{"id":"2","service":10,"demand":1,"window":[540,700]},{"id":"3","service":10,"demand":1,"window":[480,560]}]</textarea></label><label>距离矩阵 JSON<textarea id="matrix">{"depot>1":10,"depot>2":15,"depot>3":5,"1>2":20,"1>3":30,"2>1":20,"2>3":25,"3>1":30,"3>2":25}</textarea></label></section><button id="run">规划路线</button><pre id="out">等待输入</pre></main><script>run.onclick=async()=>{const r=await fetch('/api/route',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({stops:JSON.parse(stops.value),matrix:JSON.parse(matrix.value),start:480})});out.textContent=JSON.stringify(await r.json(),null,2)}</script>`; }
-if (process.argv[1] === fileURLToPath(import.meta.url)) createServer((req, res) => { if (req.method === 'GET') { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html()); return; } let body = ''; req.on('data', c => { body += c; }); req.on('end', () => { try { const input = JSON.parse(body); res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(planRoute(input.stops, input.matrix, input.start))); } catch (error) { res.writeHead(400, { 'content-type': 'application/json' }); res.end(JSON.stringify({ error: error.message })); } }); }).listen(process.env.PORT || 3000);

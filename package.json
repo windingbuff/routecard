@@ -1,1 +1,14 @@
-{"name":"routecard","private":true,"type":"module","scripts":{"start":"node app.mjs","test":"node test.mjs"}}
+{
+  "name": "routecard",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "start": "node app.mjs",
+    "test": "node --test test.mjs lib/payment.test.mjs",
+    "check:kite": "node scripts/check-kite.mjs"
+  }
+}

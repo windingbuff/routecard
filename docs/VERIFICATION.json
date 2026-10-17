@@ -1,0 +1,53 @@
+{
+  "runAt": "2026-10-17T16:58:05.242Z",
+  "command": "node --test test.mjs lib/payment.test.mjs",
+  "scope": "business regressions and fake-facilitator payment/HTTP tests; no real transfers",
+  "testResult": {
+    "project": "routecard",
+    "repository": "windingbuff/routecard",
+    "exitCode": 0,
+    "tests": 26,
+    "passed": 26,
+    "failed": 0,
+    "durationMs": 2382.931166
+  },
+  "httpSmoke": {
+    "project": "routecard",
+    "htmlAndScriptSyntax": "passed",
+    "descriptor": "passed",
+    "createAndExecute": "passed",
+    "localReceipt": null
+  },
+  "liveEvidence": {
+    "checkedAt": "2026-10-17T16:49:02.314Z",
+    "method": "Read-only RPC and facilitator capabilities; invalid synthetic signature sent only to verify, never settle",
+    "kiteRpc": {
+      "network": "kite-testnet",
+      "chainId": 2368,
+      "blockNumber": "22042426"
+    },
+    "facilitator": {
+      "endpoint": "https://facilitator.pieverse.io/v2/supported",
+      "kiteKinds": [
+        {
+          "x402Version": 2,
+          "scheme": "exact",
+          "network": "eip155:2368"
+        },
+        {
+          "x402Version": 2,
+          "scheme": "exact",
+          "network": "eip155:2366"
+        }
+      ]
+    },
+    "invalidAuthorizationVerify": {
+      "isValid": false,
+      "invalidReason": "invalid_exact_evm_payload_signature"
+    },
+    "realPayment": false,
+    "realSettlement": false
+  },
+  "realPayment": false,
+  "publicDeployment": false
+}
