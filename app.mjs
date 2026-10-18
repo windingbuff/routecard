@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { start } from './lib/server.mjs';
 import { run, validate } from './core.mjs';
+import { product } from './project.mjs';
 export * from './core.mjs';
 export const spec = { ...{
   "slug": "routecard",
@@ -53,7 +54,7 @@ export const spec = { ...{
   },
   "changed": "Feasible insertion uses cumulative capacity and full route replay. Matrix gaps are rejected, locked prefixes stay fixed and unserved stops are explicit.",
   "limits": "No map routing, live traffic, actual GPS records or fleet control. The matrix is directed. No global optimum is claimed.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -78,6 +79,6 @@ export const spec = { ...{
       }
     }
   }
-}, run, validate };
+}, run, validate, product };
 if (process.argv[1] === fileURLToPath(import.meta.url)) start(spec);
 

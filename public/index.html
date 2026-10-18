@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A persistent project workspace with reviewable revisions and Kite agent integration.">
+  <title>{{TITLE}} · Project workspace</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to workspace</a>
+  <div id="app"><main class="loading" aria-live="polite">Opening project workspace…</main></div>
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="new-project">
+    <form id="new-form">
+      <p class="eyebrow">A place for the whole workflow</p><h2 id="new-heading">New project</h2>
+      <label>Project name<input id="new-name" maxlength="120" required autocomplete="off"></label>
+      <label>Brief<textarea id="new-description" maxlength="4000" rows="3" placeholder="What are you preparing, and what does a good result look like?"></textarea></label>
+      <p class="muted">Starts with editable example inputs. Nothing runs or pays automatically.</p>
+      <div class="actions"><button type="button" data-close-dialog>Cancel</button><button class="primary" type="submit">Create project</button></div>
+    </form>
+  </dialog>
+  <dialog id="unlock-dialog">
+    <form id="unlock-form"><h2>Unlock project management</h2><p>Use the workspace access token configured by the operator. This is separate from payment authorization.</p>
+      <label>Workspace token<input id="unlock-key" type="password" autocomplete="off" required></label>
+      <p class="muted">Kept only in this page's memory. Reloading locks the workspace again.</p>
+      <div class="actions"><button type="button" data-close-dialog>Cancel</button><button class="primary" type="submit">Unlock</button></div>
+    </form>
+  </dialog>
+  <input id="import-file" type="file" accept=".json,application/json" hidden>
+</body>
+</html>

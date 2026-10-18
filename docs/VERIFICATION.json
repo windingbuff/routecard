@@ -1,24 +1,35 @@
 {
-  "runAt": "2026-10-17T16:58:05.242Z",
-  "command": "node --test test.mjs lib/payment.test.mjs",
-  "scope": "business regressions and fake-facilitator payment/HTTP tests; no real transfers",
-  "testResult": {
+  "version": "0.3.0",
+  "testedAt": "2026-10-18T00:50:18.665Z",
+  "scope": "business, project lifecycle and fake-facilitator payment tests; no real transfers",
+  "tests": {
     "project": "routecard",
     "repository": "windingbuff/routecard",
     "exitCode": 0,
-    "tests": 26,
-    "passed": 26,
+    "tests": 48,
+    "passed": 48,
     "failed": 0,
-    "durationMs": 2382.931166
+    "durationMs": 6566.353125
   },
-  "httpSmoke": {
+  "httpWorkflow": {
     "project": "routecard",
-    "htmlAndScriptSyntax": "passed",
-    "descriptor": "passed",
-    "createAndExecute": "passed",
-    "localReceipt": null
+    "interfaceAssets": "passed",
+    "createAnalyzeReviewReleaseExport": "passed",
+    "independentScenario": "passed",
+    "inputBackup": "passed",
+    "restartRecovery": "passed",
+    "oldSessionRejected": "passed",
+    "kiteDescriptor": "passed",
+    "realPayment": false
   },
-  "liveEvidence": {
+  "browser": {
+    "checkedAt": "2026-10-18T00:46:57.482Z",
+    "resultsRendered": true,
+    "viewportWidth": 1512,
+    "documentWidth": 1512
+  },
+  "paymentTests": "fake facilitator, synthetic signatures and receipts; no real transfers",
+  "priorReadOnlyNetworkEvidence": {
     "checkedAt": "2026-10-17T16:49:02.314Z",
     "method": "Read-only RPC and facilitator capabilities; invalid synthetic signature sent only to verify, never settle",
     "kiteRpc": {
@@ -49,5 +60,5 @@
     "realSettlement": false
   },
   "realPayment": false,
-  "publicDeployment": false
+  "officialAcceptance": false
 }
